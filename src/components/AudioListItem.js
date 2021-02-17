@@ -47,7 +47,11 @@ const AudioListItem = ({title,duration,onOptionPress}) => {
                 <Entypo
                 onPress={onOptionPress}
                 name="dots-three-vertical" 
-                size={24} color={color.FONT_MEDIUM} />
+                size={24}
+                color={color.FONT_MEDIUM}
+                style={{padding:10}}
+                
+                 />
             </View>
         </View>
         <View style={styles.separtor}/>
