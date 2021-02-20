@@ -7,13 +7,17 @@ import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
 import AudioListItem from '../components/AudioListItem';
 import Screen from './../components/Screen';
 import OptionModal from '../components/OptionModal';
+import {Audio} from 'expo-av';
 
 export class AudioList extends Component {
     static contextType = AudioContext;
     constructor(props){
         super(props);
         this.state={
-            optionModalVisible:false
+            optionModalVisible:false,
+            playBackOj:null,
+            soundObj:null,
+            currentAudio:{}
         }
         this.currentItem={}
     }
@@ -30,11 +34,38 @@ export class AudioList extends Component {
 
         }
 
-    })
+    });
+    handleAudioPress= async audio =>{
+        //playing audio for the first time
+        if(this.state.soundObj===null){
+            const playBackOj = new Audio.Sound();
+           const status = await playBackOj.loadAsync({uri:audio.uri},{shouldPlay:true});
+           
+          return this.setState({...this.state,currentAudio:audio, playBackOj:playBackOj, soundObj:status})
+
+        }
+        //pause the audio
+        if(this.state.soundObj.isLoaded && this.state.soundObj.isPlaying){
+         const status =   await this.state.playBackOj.setStatusAsync({shouldPlay:false});
+         return this.setState({...this.state,soundObj:status})
+        }
+        //resume audio
+        if(this.state.soundObj.isLoaded && 
+          !this.state.soundObj.isPlaying &&
+          this.state.currentAudio.id ===audio.id){
+           const status = await this.state.playBackOj.playAsync()
+           return this.setState({...this.state,soundObj:status})
+
+        }
+
+    };
+
+
     rowRenderer = (type, item) => {
         return <AudioListItem 
         title={item.filename}
          duration={item.duration}
+            onAudioPress={()=>this.handleAudioPress(item)}
              onOptionPress = {()=>{
                  this.currentItem=item
                  this.setState({...this.state,optionModalVisible:true})
